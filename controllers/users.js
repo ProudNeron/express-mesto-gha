@@ -28,9 +28,13 @@ module.exports.getUserById = (req, res) => {
     }))
     .catch((err) => {
       const ERROR_CODE = 404;
+      const ERROR_CODE_CAST = 400;
       if (err.name === 'UserNotFound') {
         res.status(ERROR_CODE).send({ message: err.message });
         return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_CAST).send({ message: 'Некорректный _id пользователя' });
       }
       res.status(500).send({ message: err.message });
     });

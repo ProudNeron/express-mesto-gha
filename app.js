@@ -17,8 +17,18 @@ app.use((req, res, next) => {
 
   next();
 });
+
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.use('/', (req, res, next) => {
+  const ERR_CODE = 400;
+  if (req.baseUrl !== '/users' && req.baseUrl !== '/cards') {
+    const incorrectRouteError = new Error('Некорректный путь');
+    incorrectRouteError.name = 'IncorrectRoute';
+    res.status(ERR_CODE).send({ message: incorrectRouteError.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`hello there, port: ${PORT}`);
