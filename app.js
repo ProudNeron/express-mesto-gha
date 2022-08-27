@@ -22,7 +22,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('/', (req, res) => {
-  const ERR_CODE = 400;
+  const ERR_CODE = 404;
   if (req.baseUrl !== '/users' && req.baseUrl !== '/cards') {
     const incorrectRouteError = new Error('Некорректный путь');
     incorrectRouteError.name = 'IncorrectRoute';
