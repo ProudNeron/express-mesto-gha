@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { ERR_CODE_NOT_FOUND } = require('./utils/errstatus');
 
 const { PORT = 3000 } = process.env;
 
@@ -22,12 +23,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('/', (req, res) => {
-  const ERR_CODE = 404;
-  if (req.baseUrl !== '/users' && req.baseUrl !== '/cards') {
-    const incorrectRouteError = new Error('Некорректный путь');
-    incorrectRouteError.name = 'IncorrectRoute';
-    res.status(ERR_CODE).send({ message: incorrectRouteError.message });
-  }
+  res.status(ERR_CODE_NOT_FOUND).send({ message: 'Некорректный путь' });
 });
 
 app.listen(PORT, () => {
