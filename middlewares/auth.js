@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const UnauthorizedError = require('../errors/authorized-but-forbidden-error');
+const UnauthorizedError = require('../errors/unauthorized-error');
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
@@ -8,7 +8,7 @@ module.exports.auth = (req, res, next) => {
   console.log(bearerToken);
 
   if (!bearerToken || !bearerToken.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('некорректный токен'));
+    throw new UnauthorizedError('некорректный токен');
   }
 
   const token = extractBearerToken(bearerToken);
@@ -20,7 +20,7 @@ module.exports.auth = (req, res, next) => {
   } catch (err) {
     const unauthorizedError = new UnauthorizedError('невалидный токен');
     unauthorizedError.name = err.name;
-    return unauthorizedError;
+    return next(unauthorizedError);
   }
 
   req.user = payload;
