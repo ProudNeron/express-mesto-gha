@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { errors } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const { ERR_CODE_NOT_FOUND } = require('./utils/errstatus');
 const { auth } = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
@@ -15,8 +15,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email().min(2)
+      .max(30),
+    password: Joi.string().required(),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email().min(2)
+      .max(30),
+    password: Joi.string().required(),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().dataUri(),
+  }).unknown(true),
+}), createUser);
 
 app.use(auth);
 
