@@ -11,7 +11,8 @@ module.exports.getAllCards = (req, res, next) => {
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  Card.create({ name, link, owner: req.user._id })
+  const owner = req.user._id;
+  Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -45,7 +46,7 @@ module.exports.putLike = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError(`Передан несуществующий _id:${req.params.cardId} карточки`);
+      throw new NotFoundError(`Передан _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
     .catch((err) => {
@@ -63,7 +64,7 @@ module.exports.removeLike = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError(`Передан несуществующий _id:${req.params.cardId} карточки`);
+      throw new NotFoundError(`Передан  _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
     .catch((err) => {
