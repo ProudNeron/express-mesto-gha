@@ -3,7 +3,7 @@ const validator = require('validator');
 const mongoose = require('mongoose');
 const UnauthorizedError = require('../errors/unauthorized-error');
 const ValidationOrCastError = require('../errors/validation-or-cast-error');
-const { linkTemplate } = require('../utils/regExpForValidation');
+const { validateUrl } = require('../utils/utils');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: (link) => linkTemplate.test(link),
+      validator: (url) => validateUrl(url),
       message: (props) => `${props.value} некорректная ссылка на изображение`,
     },
   },

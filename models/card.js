@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { linkTemplate } = require('../utils/regExpForValidation');
+const validateUrl = require('../utils/utils');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,7 +12,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (link) => linkTemplate.test(link),
+      validator: (url) => validateUrl(url),
       message: (props) => `${props.value} некорректная ссылка на изображение`,
     },
   },

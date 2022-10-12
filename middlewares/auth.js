@@ -5,7 +5,6 @@ const extractBearerToken = (header) => header.replace('Bearer ', '');
 
 module.exports.auth = (req, res, next) => {
   const bearerToken = req.headers.authorization;
-  console.log(bearerToken);
 
   if (!bearerToken || !bearerToken.startsWith('Bearer ')) {
     throw new UnauthorizedError('некорректный токен');
