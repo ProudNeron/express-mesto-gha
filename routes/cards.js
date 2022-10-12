@@ -4,6 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getAllCards, createCard, deleteCard, putLike, removeLike,
 } = require('../controllers/cards');
+const { validateUrl } = require('../utils/utils');
 
 router.get('/', getAllCards);
 router.post(
@@ -11,7 +12,7 @@ router.post(
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required(),
+      link: Joi.string().required().custom(validateUrl),
     }).unknown(true),
   }),
   createCard,
