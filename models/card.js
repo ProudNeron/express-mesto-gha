@@ -12,7 +12,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (url) => validateUrl(url),
+      validator: (url) => Boolean(/^https?:\/\/w*\.?[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;=]+\.[a-z]+\/?#?/.test(url)),
       message: (props) => `${props.value} некорректная ссылка на изображение`,
     },
   },
@@ -22,10 +22,8 @@ const cardSchema = new mongoose.Schema({
     ref: 'user',
   },
   likes: {
-    type: [mongoose.Schema.Types.ObjectId],
-    required: true,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
     default: [],
-    ref: 'user',
   },
   createdAt: {
     type: Date,
