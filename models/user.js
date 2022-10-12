@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const mongoose = require('mongoose');
 const UnauthorizedError = require('../errors/unauthorized-error');
-const NotFoundError = require('../errors/not-found-error');
 const ValidationOrCastError = require('../errors/validation-or-cast-error');
 const { linkTemplate } = require('../utils/regExpForValidation');
 
