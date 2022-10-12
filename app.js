@@ -6,6 +6,7 @@ const { ERR_CODE_NOT_FOUND } = require('./utils/errstatus');
 const { auth } = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { handleDefaultError } = require('./middlewares/handleDefaultError');
+const { validateUrl } = require('./utils/utils');
 
 const { PORT = 3000 } = process.env;
 
@@ -29,7 +30,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().custom(validateUrl),
   }).unknown(true),
 }), createUser);
 
