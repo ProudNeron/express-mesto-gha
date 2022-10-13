@@ -32,7 +32,7 @@ module.exports.deleteCard = (req, res, next) => {
         throw new AuthorizedButForbiddenError('чужая карточка');
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then(() => res.send('Карточка удалена'));
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
