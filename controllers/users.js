@@ -92,7 +92,7 @@ module.exports.createUser = (req, res, next) => {
   Users.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ConflictError('Переданы некорректные данные при создании пользователя');
+        return next(new ConflictError('Переданы некорректные данные при создании пользователя'));
       }
     });
   bcrypt.hash(password, 10)
