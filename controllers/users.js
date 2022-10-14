@@ -89,28 +89,26 @@ module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-  Users.findOne({ email })
-    .then((user) => {
-      if (user) {
-        return Promise.reject(ConflictError('Переданы некорректные данные при создании пользователя'));
+  bcrypt.hash(password, 10)
+    .then((hash) => Users.create({
+      password: hash, email, name, about, avatar,
+    }))
+    .then(() => {
+      res.send({
+        email, name, about, avatar,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new CastError('Переданы некорректные данные при создании пользователя'));
       }
-      return bcrypt.hash(password, 10)
-        .then((hash) => Users.create({
-          password: hash, email, name, about, avatar,
-        }))
-        .then(() => {
-          res.send({
-            email, name, about, avatar,
-          });
-        })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            return next(new CastError('Переданы некорректные данные при создании пользователя'));
-          }
 
-          return next(err);
-        });
-    }).catch(next);
+      if (err.code === 11000) {
+        return next(new ConflictError('Переданы некорректные данные при создании пользователя'));
+      }
+
+      return next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
