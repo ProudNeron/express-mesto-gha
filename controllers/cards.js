@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const AuthorizedButForbiddenError = require('../errors/authorized-but-forbidden-error');
 const NotFoundError = require('../errors/not-found-error');
+const CastError = require('../errors/cast-error');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
@@ -12,7 +13,13 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new CastError('Переданы некорректные данные при создании карточки'));
+      }
+
+      return next(err);
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -29,7 +36,13 @@ module.exports.deleteCard = (req, res, next) => {
       Card.findByIdAndRemove(req.params.cardId)
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new CastError('Некорректный _id карточки'));
+      }
+
+      return next(err);
+    });
 };
 
 module.exports.putLike = (req, res, next) => {
@@ -42,7 +55,13 @@ module.exports.putLike = (req, res, next) => {
       throw new NotFoundError(`Передан _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new CastError('Некорректный _id карточки'));
+      }
+
+      return next(err);
+    });
 };
 
 module.exports.removeLike = (req, res, next) => {
@@ -55,5 +74,11 @@ module.exports.removeLike = (req, res, next) => {
       throw new NotFoundError(`Передан  _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new CastError('Некорректный _id карточки'));
+      }
+
+      return next(err);
+    });
 };
