@@ -11,7 +11,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (url) => Boolean(/^https?:\/\/w*\.?[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;=]+\.[a-z]+\/?#?/.test(url)),
+      validator: (url) => Boolean(/^https?:\/\/(www\.)?[a-zA-Z0-9\-.]{1,}\.[a-zA-Z]{1,4}[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=]{1,}/.test(url)),
       message: (props) => `${props.value} некорректная ссылка на изображение`,
     },
   },
@@ -26,7 +26,7 @@ const cardSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date,
   },
 });
 

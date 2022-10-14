@@ -2,9 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
 const ConflictError = require('../errors/conflict-error');
-const AuthorizedButForbiddenError = require('../errors/authorized-but-forbidden-error');
 const NotFoundError = require('../errors/not-found-error');
-const ValidationOrCastError = require('../errors/validation-or-cast-error');
 
 module.exports.getAllUsers = (req, res, next) => {
   Users.find({})
@@ -20,12 +18,7 @@ module.exports.getUserById = (req, res, next) => {
       throw new NotFoundError(`Пользователь по указанному _id: ${req.params.userId} не найден`);
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError(`Некорректный _id: ${req.params.userId} пользователя`));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.getUserInfo = (req, res, next) => {
@@ -34,12 +27,7 @@ module.exports.getUserInfo = (req, res, next) => {
       throw new NotFoundError(`Пользователь по указанному _id: ${req.params.userId} не найден`);
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError(`Некорректный _id: ${req.params.userId} пользователя`));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -51,18 +39,7 @@ module.exports.updateProfile = (req, res, next) => {
     .then((user) => res.send({
       name: user.name, about: user.about, avatar: user.avatar, _id: user._id,
     }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError(`Некорректный _id: ${req.params.userId} пользователя`));
-      }
-      if (err.name === 'ValidationError') {
-        return next(new ValidationOrCastError('Переданы некорректные данные для обновления профиля'));
-      }
-      if (err.name === 'Authorized But Forbidden') {
-        return next(new AuthorizedButForbiddenError('Попытка обновить чужой профиль'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -72,18 +49,7 @@ module.exports.updateAvatar = (req, res, next) => {
       throw new NotFoundError(`Пользователь по указанному _id: ${req.params.userId} не найден`);
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new ValidationOrCastError('Переданы некорректные данные при обновлении аватара'));
-      }
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError(`Некорректный _id: ${req.params.userId} пользователя`));
-      }
-      if (err.name === 'Authorized But Forbidden') {
-        return next(new AuthorizedButForbiddenError('Попытка обновить чужой профиль'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -106,12 +72,7 @@ module.exports.createUser = (req, res, next) => {
         email, name, about, avatar,
       });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new ValidationOrCastError('Переданы некорректные данные при создании пользователя'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {

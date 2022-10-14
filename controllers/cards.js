@@ -1,7 +1,6 @@
 const Card = require('../models/card');
 const AuthorizedButForbiddenError = require('../errors/authorized-but-forbidden-error');
 const NotFoundError = require('../errors/not-found-error');
-const ValidationOrCastError = require('../errors/validation-or-cast-error');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
@@ -13,36 +12,22 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new ValidationOrCastError('Переданы некорректные данные при создании карточки1111'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .populate(['owner'])
     .orFail(() => {
       throw new NotFoundError(`Карточка с указанным _id:${req.params.cardId} не найдена`);
     })
     .then((card) => {
       if (card.owner.id !== req.user._id) {
-        throw new AuthorizedButForbiddenError('чужая карточка');
+        throw new AuthorizedButForbiddenError('Попытка удалить чужую карточку');
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError('Некорректный _id карточки'));
-      }
-      if (err.name === 'Authorized But Forbidden') {
-        return next(new AuthorizedButForbiddenError('Попытка удалить чужую карточку'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.putLike = (req, res, next) => {
@@ -55,12 +40,7 @@ module.exports.putLike = (req, res, next) => {
       throw new NotFoundError(`Передан _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError('Некорректный _id карточки'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.removeLike = (req, res, next) => {
@@ -73,10 +53,5 @@ module.exports.removeLike = (req, res, next) => {
       throw new NotFoundError(`Передан  _id:${req.params.cardId} карточки не найден`);
     })
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationOrCastError('Некорректный _id карточки'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
