@@ -89,6 +89,15 @@ module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
+
+  Users.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictError('Переданы некорректные данные при создании пользователя');
+      }
+    })
+    .catch(next);
+
   bcrypt.hash(password, 10)
     .then((hash) => Users.create({
       password: hash, email, name, about, avatar,
@@ -98,17 +107,7 @@ module.exports.createUser = (req, res, next) => {
         email, name, about, avatar,
       });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new CastError('Переданы некорректные данные при создании пользователя'));
-      }
-
-      if (err.code === 11000) {
-        return next(new ConflictError('Переданы некорректные данные при создании пользователя'));
-      }
-
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -117,7 +116,6 @@ module.exports.login = (req, res, next) => {
   Users.findUserByCredentials({ email, password })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'superSecret', { expiresIn: '7d' });
-
       res.send({ token });
     })
     .catch(next);
