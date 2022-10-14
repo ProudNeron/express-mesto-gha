@@ -87,24 +87,25 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => {
       if (user) {
         throw new ConflictError('Переданы некорректные данные при создании пользователя');
+      } else {
+        return bcrypt.hash(password, 10)
+          .then((hash) => Users.create({
+            password: hash, email, name, about, avatar,
+          }))
+          .then(() => {
+            res.send({
+              email, name, about, avatar,
+            });
+          })
+          .catch((err) => {
+            if (err.name === 'ValidationError') {
+              return next(new ValidationOrCastError('Переданы невалидные данные'));
+            }
+            return next(err);
+          });
       }
     })
     .catch(next);
-  bcrypt.hash(password, 10)
-    .then((hash) => Users.create({
-      password: hash, email, name, about, avatar,
-    }))
-    .then(() => {
-      res.send({
-        email, name, about, avatar,
-      });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new ValidationOrCastError('Переданы невалидные данные'));
-      }
-      return next(err);
-    });
 };
 
 module.exports.login = (req, res, next) => {
