@@ -2,14 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { errors, celebrate, Joi } = require('celebrate');
 const cors = require('cors');
-const NotFoundError = require('./errors/not-found-error');
-const { auth } = require('./middlewares/auth');
-const { login, createUser } = require('./controllers/users');
-const { handleDefaultError } = require('./middlewares/handleDefaultError');
-const { validateUrl } = require('./utils/utils');
+const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const routes = require('./routes/index');
+const { handleDefaultError } = require('./middlewares/handleDefaultError');
 
 const { PORT = 3000 } = process.env;
 
@@ -30,30 +27,7 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom(validateUrl),
-  }).unknown(true),
-}), createUser);
-
-app.use(auth);
-
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Некорректный путь'));
-});
+app.use(routes);
 
 app.use(errorLogger);
 
